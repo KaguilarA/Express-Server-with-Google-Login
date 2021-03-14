@@ -1,7 +1,6 @@
 // Requires
 const express = require('express');
 const controller = require('./user.controller');
-
 const auth = require('./../../helpers/auth.helper');
 
 // Initialization

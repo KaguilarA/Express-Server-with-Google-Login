@@ -21,7 +21,7 @@ class HospitalController {
         if (err) {
           return exceptionManager.sendDataBaseError(res, err);
         }
-        HospitalModel.count({}, (err, count) => {
+        HospitalModel.countDocuments({}, (err, count) => {
           if (err) {
             return exceptionManager.sendDataBaseError(res, err);
           }

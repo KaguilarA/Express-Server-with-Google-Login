@@ -20,7 +20,7 @@ class DoctorController {
         if (err) {
           return exceptionManager.sendDataBaseError(res, err);
         }
-        DoctorModel.count({}, (err, count) => {
+        DoctorModel.countDocuments({}, (err, count) => {
           if (err) {
             return exceptionManager.sendDataBaseError(res, err);
           }

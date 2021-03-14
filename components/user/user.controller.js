@@ -20,7 +20,7 @@ class UserController {
           if (err) {
             msj.sendDataBaseError(res, err);
           }
-          UserModel.count({}, (err, count) => {
+          UserModel.countDocuments({}, (err, count) => {
             if (err) {
               msj.sendDataBaseError(res, err);
             }
