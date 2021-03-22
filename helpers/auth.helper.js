@@ -7,7 +7,6 @@ class AuthHelper {
 
   validateToken(req, res, next) {
     const token = req.header(`x-token`);
-
     if (!token) {
       msj.forbiddenRequestData(res, `Invalid token`, 'Empty-Data');
     } else {

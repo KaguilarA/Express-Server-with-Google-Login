@@ -29,7 +29,7 @@ class HospitalController {
             hospitalsLength: hospitals.length,
             hospitals
           }
-          exceptionManager.sendData(res, data);
+          return exceptionManager.sendData(res, data);
         });
     });
   }
@@ -45,7 +45,7 @@ class HospitalController {
         if (!hospital) {
           return exceptionManager.notFountData(res, `Hospital id`, id);
         }
-        exceptionManager.sendData(res, hospital);
+        return exceptionManager.sendData(res, hospital);
       });
   }
 
@@ -57,7 +57,7 @@ class HospitalController {
       if (err) {
         return exceptionManager.badRequestData(res, `Register hospital error`, err);
       }
-      exceptionManager.createdData(res, createdHospital);
+      return exceptionManager.createdData(res, createdHospital);
     });
   }
 
@@ -78,7 +78,7 @@ class HospitalController {
             hospital[key] = currentData;
           }
         }
-        hospital.save((err, updatedHospital) => {
+        return hospital.save((err, updatedHospital) => {
           if (err) {
             return exceptionManager.badRequestData(res, `Update hospital error`, err);
           }
@@ -96,7 +96,7 @@ class HospitalController {
       if (!deletedHospital) {
         return exceptionManager.notFountData(res, `Hospital not registered`, `Hospital`);
       }
-      exceptionManager.sendData(res, deletedHospital);
+      return exceptionManager.sendData(res, deletedHospital);
     });
   }
 

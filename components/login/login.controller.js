@@ -42,7 +42,7 @@ class LoginController {
           exceptionManager.sendData(res, data);
         }).catch(err => {
           console.log(err);
-        });        
+        }); 
       });
   }
 
@@ -80,6 +80,17 @@ class LoginController {
               });
             });
           });
+    });
+  }
+
+  renewToken(req, res) {
+    const uid = req.uid;
+
+    auth.generateToken(uid).then((token) => {
+      const data = {
+        token
+      }
+      exceptionManager.sendData(res, data);
     });
   }
 }

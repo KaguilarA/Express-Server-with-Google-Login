@@ -18,11 +18,11 @@ class UserController {
       .exec(
         (err, users) => {
           if (err) {
-            msj.sendDataBaseError(res, err);
+            return msj.sendDataBaseError(res, err);
           }
           UserModel.countDocuments({}, (err, count) => {
             if (err) {
-              msj.sendDataBaseError(res, err);
+              return msj.sendDataBaseError(res, err);
             }
             const data = {
               usersLength: count,
@@ -40,7 +40,7 @@ class UserController {
     UserModel.findById({_id: id})
       .exec((err, user) => {
         if (err) {
-          msj.badRequestData(res, `Search user error`, err);
+          return msj.badRequestData(res, `Search user error`, err);
         }
         if (!user) {
           msj.notFountData(res, `User id`, id);
@@ -54,8 +54,9 @@ class UserController {
     const newUser = new UserModel(body);
     newUser.save((err, createdUser) => {
       if (err) {
-        msj.badRequestData(res, `Error en el registro de usuario`, err);
+        return msj.badRequestData(res, `Error en el registro de usuario`, err);
       }
+
       msj.createdData(res, createdUser);
     });
   }
@@ -65,10 +66,10 @@ class UserController {
     const body = req.body;
     UserModel.findById(id).exec((err, user) => {
       if (err) {
-        msj.badRequestData(res, `Search user error`, err);
+        return msj.badRequestData(res, `Search user error`, err);
       }
       if (!user) {
-        msj.notFountData(res, `User id`, id);
+        return msj.notFountData(res, `User id`, id);
       }
       for (const key in body) {
         if (body[key] !== undefined) {
@@ -78,7 +79,7 @@ class UserController {
       }
       user.save((err, updatedUser) => {
         if (err) {
-          msj.badRequestData(res, `Update user error`, err);
+          return msj.badRequestData(res, `Update user error`, err);
         }
         msj.sendData(res, updatedUser);
       });
@@ -89,7 +90,7 @@ class UserController {
     const id = req.params.id;
     UserModel.findByIdAndRemove(id, (err, deletedUser) => {
       if (err) {
-        msj.badRequestData(res, `Search user by id error`, err);
+        return msj.badRequestData(res, `Search user by id error`, err);
       }
       if (!deletedUser) {
         msj.notFountData(res, `User not registered`, `User`);

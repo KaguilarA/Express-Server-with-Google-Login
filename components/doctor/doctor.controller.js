@@ -28,9 +28,9 @@ class DoctorController {
             doctorsLength: count,
             doctors
           }
-          exceptionManager.sendData(res, data);
+          return exceptionManager.sendData(res, data);
         });
-  
+
       });
   }
 
@@ -46,8 +46,7 @@ class DoctorController {
         if (!doctor) {
           return exceptionManager.notFountData(res, `Doctor id`, id);
         }
-        console.log(doctor);
-        exceptionManager.sendData(res, doctor);
+        return exceptionManager.sendData(res, doctor);
       });
   }
 
@@ -59,7 +58,7 @@ class DoctorController {
       if (err) {
         return exceptionManager.badRequestData(res, `Register doctor error`, err);
       }
-      exceptionManager.createdData(res, createdDoctor);
+      return exceptionManager.createdData(res, createdDoctor);
     });
   }
 
@@ -84,7 +83,7 @@ class DoctorController {
           if (err) {
             return exceptionManager.badRequestData(res, `Update doctor error`, err);
           }
-          exceptionManager.sendData(res, updatedDoctor);
+          return exceptionManager.sendData(res, updatedDoctor);
         });
       });
   }
@@ -98,7 +97,7 @@ class DoctorController {
       if (!deletedDoctor) {
         return exceptionManager.notFountData(res, `Doctor not registered`, `Doctor`);
       }
-      exceptionManager.sendData(res, deletedDoctor);
+      return exceptionManager.sendData(res, deletedDoctor);
     });
   }
 }

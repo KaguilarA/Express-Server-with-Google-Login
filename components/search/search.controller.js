@@ -60,7 +60,7 @@ class SearchController {
           }
         }
       }
-      msj.sendData(res, data);
+      return msj.sendData(res, data);
     }).catch(err => {
       console.error(err);
     });
@@ -86,7 +86,7 @@ class SearchController {
       const data = {
         result: resultData,
       }
-      msj.sendData(res, data);
+      return msj.sendData(res, data);
     });
   }
 }
