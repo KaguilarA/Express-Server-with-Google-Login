@@ -34,30 +34,30 @@ function updateAndSave(identity, dataType, res, imgUrl, imgId) {
 
   identity.save((err, matchUpdated) => {
     if (err) {
-      msj.badRequestData(res, `Update ${dataType} error`, err);
+      return msj.badRequestData(res, `Update ${dataType} error`, err);
     }
 
     const data = {
       message: `Updated image ${dataType}`,
-      matchUpdated
+      updated: matchUpdated
     }
 
-    msj.sendData(res, data);
+    return msj.sendData(res, data);
   });
 }
 
 function updateFile(res, id, dataType, imgUrl, imgId) {
   getModel(dataType).findById(id).exec((err, match) => {
     if (err) {
-      msj.badRequestData(res, `Search ${dataType} error`, err);
+      return msj.badRequestData(res, `Search ${dataType} error`, err);
     }
 
     if (match.img_id !== ``) {
       cloudinary.uploader.destroy(match.img_id).then(() => {
-        updateAndSave(match, dataType, res, imgUrl, imgId);
+        return updateAndSave(match, dataType, res, imgUrl, imgId);
       });
     } else {
-      updateAndSave(match, dataType, res, imgUrl, imgId);
+      return updateAndSave(match, dataType, res, imgUrl, imgId);
     }
   });
 }
@@ -69,9 +69,7 @@ class UploadImageController {
     const dataId = req.params.id;
 
     cloudinary.uploader.upload(file.path).then(done => {
-
-      updateFile(res, dataId, type, done.secure_url, done.public_id);
-
+      return updateFile(res, dataId, type, done.secure_url, done.public_id);
     });
   }
 }

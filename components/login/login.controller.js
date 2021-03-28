@@ -11,6 +11,7 @@ const UserModel = require('../user/user.model');
 const credentialsError = {
   message: `Wrong credentials`
 }
+const userDataFilter = `firstName secondName firstSurname secondSurname img email role googleTokenLogin`;
 
 class LoginController {
   logIn(req, res) {
@@ -20,17 +21,17 @@ class LoginController {
       .exec((err, userMatch) => {
 
         if (err) {
-          exceptionManager.sendDataBaseError(res, err);
+          return exceptionManager.sendDataBaseError(res, err);
         }
 
         if (!userMatch) {
-           exceptionManager.badRequestData(res, `User not registered`, credentialsError);
+           return exceptionManager.badRequestData(res, `User not registered`, credentialsError);
         }
 
         const isMatchPass = userMatch.comparePassword(body.password);
 
         if (!isMatchPass) {
-          exceptionManager.badRequestData(res, `Wrong credentials`, credentialsError);
+          return exceptionManager.badRequestData(res, `Wrong credentials`, credentialsError);
         }
 
         auth.generateToken(userMatch._id).then(token => {
@@ -39,7 +40,7 @@ class LoginController {
             token,
             user: userMatch
           }
-          exceptionManager.sendData(res, data);
+          return exceptionManager.sendData(res, data);
         }).catch(err => {
           console.log(err);
         }); 
@@ -56,7 +57,7 @@ class LoginController {
             let newUser;
           
             if (err) {
-              msj.sendDataBaseError(res, err);
+              return msj.sendDataBaseError(res, err);
             }
 
             if (!userFind) {
@@ -68,7 +69,7 @@ class LoginController {
 
             newUser.save((err, updatedUser) => {
               if (err) {
-                exceptionManager.badRequestData(res, `Login error`, err);
+                return exceptionManager.badRequestData(res, `Login error`, err);
               }
               auth.generateToken(updatedUser._id).then(token => {
                 updatedUser.password = "";
@@ -76,7 +77,7 @@ class LoginController {
                   token,
                   user: updatedUser
                 }
-                exceptionManager.sendData(res, data);
+                return exceptionManager.sendData(res, data);
               });
             });
           });
@@ -85,12 +86,23 @@ class LoginController {
 
   renewToken(req, res) {
     const uid = req.uid;
+    UserModel.findOne({ _id: uid }, userDataFilter)
+      .exec((err, userMatch) => {
 
-    auth.generateToken(uid).then((token) => {
-      const data = {
-        token
+      if (err) {
+        return exceptionManager.sendDataBaseError(res, err);
       }
-      exceptionManager.sendData(res, data);
+
+      if (!userMatch) {
+        return exceptionManager.badRequestData(res, `User not registered`, credentialsError);
+      }
+      auth.generateToken(uid).then((token) => {
+        const data = {
+          token,
+          user: userMatch
+        }
+        return exceptionManager.sendData(res, data);
+      });
     });
   }
 }

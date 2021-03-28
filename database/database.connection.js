@@ -12,6 +12,7 @@ const connectionOptions = {
 
 function dbConnection() {
   mongoose.set('useCreateIndex', true);
+  mongoose.set('useFindAndModify', true)
   mongoose.connect(data.parsed.DB_URL, connectionOptions).then((result) => {
     console.log(`Data Base on port 27017 ${solidColors.yellow}`, "online");
   }).catch((err) => {

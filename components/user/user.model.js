@@ -37,7 +37,8 @@ const userSchema = new Schema({
   },
   img: {
     type: String,
-    required: false
+    required: false,
+    default: 'https://res.cloudinary.com/thiamine/image/upload/v1611333689/adminPro/no-img.jpg'
   },
   img_id: {
     type: String,
@@ -65,15 +66,14 @@ const userSchema = new Schema({
   }
 });
 
-userSchema.pre(`save`, function (next) {
-  this.password = bcrypt.hashSync(this.password);
-  next();
-});
-
 userSchema.virtual('fullName').get(function() {
   const fullName = this.firstName + ' ' + this.firstSurname;
   return fullName;
 });
+
+userSchema.methods.setPassword = function() {
+  this.password = bcrypt.hashSync(this.password);
+}
 
 userSchema.methods.comparePassword = function (pPwToValidate) {
   const isMatch = bcrypt.compareSync(pPwToValidate, this.password);
@@ -82,6 +82,17 @@ userSchema.methods.comparePassword = function (pPwToValidate) {
 
 userSchema.methods.setGoogleLogin = function () {
   this.googleTokenLogin = true;
+}
+
+userSchema.methods.updateData = function (overwriteData) {
+  for (const att in overwriteData) {
+    if (Object.hasOwnProperty.call(overwriteData, att)) {
+      const newData = overwriteData[att];
+      if (this[att] !== undefined) {
+        this[att] = newData;
+      }
+    }
+  }
 }
 
 userSchema.plugin(uniqueValidator, {

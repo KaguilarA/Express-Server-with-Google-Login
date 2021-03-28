@@ -7,16 +7,18 @@ class AuthHelper {
 
   validateToken(req, res, next) {
     const token = req.header(`x-token`);
+    console.log('token: ', token);
+
     if (!token) {
       msj.forbiddenRequestData(res, `Invalid token`, 'Empty-Data');
     } else {
       jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
-
+        console.log('decode: ', decode);
         if (err) {
           msj.unauthorizedRequestData(res, `Invalid token`, err);
+          next();
         }
-      
-        req.uid = decode;
+        req.uid = decode.uid;
         next();
       });
     }

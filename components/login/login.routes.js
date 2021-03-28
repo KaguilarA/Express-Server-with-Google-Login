@@ -11,6 +11,6 @@ router.post(`/`, loginController.logIn);
 
 router.post(`/google`, loginController.logInGoogle);
 
-router.get(`/renew`, loginController.renewToken);
+router.get(`/renew`, auth.validateToken, loginController.renewToken);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const msj = require('./../../shared/msj.shared');
 
 // Model
 const UserModel = require('./user.model');
-const userData = `firstName secondName firstSurname secondSurname img email role`;
+const userData = `firstName secondName firstSurname secondSurname img email role googleTokenLogin`;
 
 // Class Controller
 
@@ -52,6 +52,7 @@ class UserController {
   register(req, res) {
     const body = req.body;
     const newUser = new UserModel(body);
+    newUser.setPassword();
     newUser.save((err, createdUser) => {
       if (err) {
         return msj.badRequestData(res, `Error en el registro de usuario`, err);
@@ -64,26 +65,23 @@ class UserController {
   updateById(req, res) {
     const id = req.params.id;
     const body = req.body;
-    UserModel.findById(id).exec((err, user) => {
-      if (err) {
-        return msj.badRequestData(res, `Search user error`, err);
-      }
-      if (!user) {
-        return msj.notFountData(res, `User id`, id);
-      }
-      for (const key in body) {
-        if (body[key] !== undefined) {
-          const currentData = body[key];
-          user[key] = currentData;
-        }
-      }
-      user.save((err, updatedUser) => {
+    
+    UserModel.findById(id)
+      .exec((err, user) => {
         if (err) {
-          return msj.badRequestData(res, `Update user error`, err);
+          return msj.badRequestData(res, `Search user error`, err);
         }
-        msj.sendData(res, updatedUser);
+        if (!user) {
+          return msj.notFountData(res, `User id`, id);
+        }
+        user.updateData(body);
+        user.save((err, updatedUser) => {
+          if (err) {
+            return msj.badRequestData(res, `Update user error`, err);
+          }
+          return msj.sendData(res, updatedUser);
+        });
       });
-    });
   }
 
   deleteById(req, res) {
