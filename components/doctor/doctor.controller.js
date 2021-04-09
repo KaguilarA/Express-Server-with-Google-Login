@@ -1,26 +1,24 @@
-// Requires
+const BaseController = require('./../base/base.controller');
 const exceptionManager = require('./../../shared/msj.shared');
+const model = require('./doctor.model');
 
-// Model
-const DoctorModel = require('./doctor.model');
+class DoctorController extends BaseController {
+  static currentInstance = new DoctorController();
 
-// Consts
-const userFormatted = `firstName secondName firstSurname secondSurname email -_id`;
-const hospitalFormatted = `name img id -_id`;
-
-class DoctorController {
   getAll(req, res) {
+    const _this = DoctorController.currentInstance;
     const fromOf = parseInt(req.query.fromOf) || 0;
-    DoctorModel.find({}, `-__v`)
-      .populate(`userCreatorId`, userFormatted)
-      .populate(`hospitalId`, hospitalFormatted)
+
+    model.find({}, _this.doctorData)
+      .populate(`userCreatorId`, _this.userData)
+      .populate(`hospitalId`, _this.hospitalData)
       .skip(fromOf)
       .limit(5)
       .exec((err, doctors) => {
         if (err) {
           return exceptionManager.sendDataBaseError(res, err);
         }
-        DoctorModel.countDocuments({}, (err, count) => {
+        model.countDocuments({}, (err, count) => {
           if (err) {
             return exceptionManager.sendDataBaseError(res, err);
           }
@@ -35,10 +33,11 @@ class DoctorController {
   }
 
   getById(req, res) {
+    const _this = DoctorController.currentInstance;
     const id = req.params.id;
-    DoctorModel.findById({_id: id}, `-__v`)
-      .populate(`userCreatorId`, userFormatted)
-      .populate(`hospitalId`, hospitalFormatted)
+    model.findById({_id: id}, _this.doctorData)
+      .populate(`userCreatorId`, _this.userData)
+      .populate(`hospitalId`, _this.hospitalData)
       .exec((err, doctor) => {
         if (err) {
           return exceptionManager.badRequestData(res, `Search doctor error`, err);
@@ -53,7 +52,7 @@ class DoctorController {
   register(req, res) {
     const body = req.body;
     body.userCreatorId = req.uid.uid;
-    const newDoctor = new DoctorModel(body);
+    const newDoctor = new model(body);
     newDoctor.save((err, createdDoctor) => {
       if (err) {
         return exceptionManager.badRequestData(res, `Register doctor error`, err);
@@ -65,7 +64,7 @@ class DoctorController {
   updateById(req, res) {
     const id = req.params.id;
     const body = req.body;
-    DoctorModel.findById(id)
+    model.findById(id)
       .exec((err, doctor) => {
         if (err) {
           return exceptionManager.badRequestData(res, `Search doctor error`, err);
@@ -90,7 +89,7 @@ class DoctorController {
 
   delete(req, res) {
     const id = req.params.id;
-    DoctorModel.findByIdAndRemove(id, (err, deletedDoctor) => {
+    model.findByIdAndRemove(id, (err, deletedDoctor) => {
       if (err) {
         return exceptionManager.badRequestData(res, `Search doctor by id error`, err);
       }
@@ -102,8 +101,4 @@ class DoctorController {
   }
 }
 
-// Export
-
-const controller = new DoctorController();
-
-module.exports = controller;
+module.exports = DoctorController.currentInstance;

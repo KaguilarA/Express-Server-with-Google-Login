@@ -1,5 +1,5 @@
-
 class ExceptionManager {
+  static currentInstance = new ExceptionManager();
 
   sendData(response, data) {
     const jsonText = {
@@ -7,7 +7,7 @@ class ExceptionManager {
       data
     }
     return response.status(200).json(jsonText);
-}
+  }
 
   createdData(response, data) {
     const jsonText = {
@@ -78,6 +78,4 @@ class ExceptionManager {
 
 }
 
-const exceptionManager = new ExceptionManager();
-
-module.exports = exceptionManager;
+module.exports = ExceptionManager.currentInstance;

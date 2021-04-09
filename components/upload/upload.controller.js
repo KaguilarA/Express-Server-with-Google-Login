@@ -7,75 +7,77 @@ const HospitalModel = require('./../hospital/hospital.model');
 const DoctorModel = require('./../doctor/doctor.model');
 const UserModel = require('./../user/user.model');
 
-// Functions
-function getModel(dataType) { 
-  let currentModel;
+class UploadImageController {
+  static currentInstance = new UploadImageController();
 
-  switch (dataType) {
-    case 'hospitals':
-      currentModel = HospitalModel;
-      break;
+  getModel(dataType) {
+    let currentModel;
 
-    case 'doctors':
-      currentModel = DoctorModel;
-      break;
+    switch (dataType) {
+      case 'hospitals':
+        currentModel = HospitalModel;
+        break;
 
-    default:
-      currentModel = UserModel;
-      break;
+      case 'doctors':
+        currentModel = DoctorModel;
+        break;
+
+      default:
+        currentModel = UserModel;
+        break;
+    }
+
+    return currentModel;
   }
 
-  return currentModel;
-}
-
-function updateAndSave(identity, dataType, res, imgUrl, imgId) { 
-  identity.img = imgUrl;
-  identity.img_id = imgId;
-
-  identity.save((err, matchUpdated) => {
-    if (err) {
-      return msj.badRequestData(res, `Update ${dataType} error`, err);
-    }
-
-    const data = {
-      message: `Updated image ${dataType}`,
-      updated: matchUpdated
-    }
-
-    return msj.sendData(res, data);
-  });
-}
-
-function updateFile(res, id, dataType, imgUrl, imgId) {
-  getModel(dataType).findById(id).exec((err, match) => {
-    if (err) {
-      return msj.badRequestData(res, `Search ${dataType} error`, err);
-    }
-
-    if (match.img_id !== ``) {
-      cloudinary.uploader.destroy(match.img_id).then(() => {
-        return updateAndSave(match, dataType, res, imgUrl, imgId);
-      });
-    } else {
-      return updateAndSave(match, dataType, res, imgUrl, imgId);
-    }
-  });
-}
-
-class UploadImageController {
   upImage(req, res) {
+    const _this = UploadImageController.currentInstance;
     const file = req.file;
     const type = req.params.type;
     const dataId = req.params.id;
 
     cloudinary.uploader.upload(file.path).then(done => {
-      return updateFile(res, dataId, type, done.secure_url, done.public_id);
+      return _this.updateFile(res, dataId, type, done.secure_url, done.public_id);
+    });
+  }
+
+  updateAndSave(identity, dataType, res, imgUrl, imgId) {
+    identity.img = imgUrl;
+    identity.img_id = imgId;
+
+    identity.save((err, matchUpdated) => {
+      if (err) {
+        return msj.badRequestData(res, `Update ${dataType} error`, err);
+      }
+
+      const data = {
+        message: `Updated image ${dataType}`,
+        updated: matchUpdated
+      }
+
+      return msj.sendData(res, data);
+    });
+  }
+
+  updateFile(res, id, dataType, imgUrl, imgId) {
+    const _this = UploadImageController.currentInstance;
+
+    _this.getModel(dataType).findById(id).exec((err, match) => {
+      if (err) {
+        return msj.badRequestData(res, `Search ${dataType} error`, err);
+      }
+
+      if (match.img_id !== ``) {
+        cloudinary.uploader.destroy(match.img_id).then(() => {
+          return _this.updateAndSave(match, dataType, res, imgUrl, imgId);
+        });
+      } else {
+        return _this.updateAndSave(match, dataType, res, imgUrl, imgId);
+      }
     });
   }
 }
 
 // Exports
 
-const controller = new UploadImageController();
-
-module.exports = controller;
+module.exports = UploadImageController.currentInstance;

@@ -3,22 +3,22 @@ const HospitalModel = require('./../hospital/hospital.model');
 const DoctorModel = require('./../doctor/doctor.model');
 const UserModel = require('./../user/user.model');
 
-// Consts
-const userFormatted = `firstName secondName firstSurname secondSurname email -_id`;
-const hospitalFormatted = `name img id -_id`;
-
 // Class
 
 class PromisesController {
+  static currentInstance = new PromisesController();
+  userData = `firstName secondName firstSurname secondSurname img email role googleTokenLogin`;
+  hospitalData = `name img id -_id`;
 
   searchHospital(regex, count) {
+    const _this = PromisesController.currentInstance;
     return new Promise((resolve, reject) => {
       HospitalModel.find({
           name: regex
       }, `-__v`)
         .skip(count)
         .limit(5)
-        .populate('userCreatorId', userFormatted)
+        .populate('userCreatorId', _this.userData)
         .exec((err, hospitals) => {
           if (err) {
             reject(err);
@@ -30,6 +30,7 @@ class PromisesController {
   }
 
   searchDoctor(regex, count) {
+    const _this = PromisesController.currentInstance;
     return new Promise((resolve, reject) => {
       DoctorModel.find({}, `-__v`)
         .skip(count)
@@ -43,8 +44,8 @@ class PromisesController {
         }, {
           secondSurname: regex
         }])
-        .populate(`hospitalId`, hospitalFormatted)
-        .populate(`userCreatorId`, userFormatted)
+        .populate(`hospitalId`, _this.hospitalData)
+        .populate(`userCreatorId`, _this.userData)
         .exec((err, doctors) => {
           if (err) {
             reject(err);
@@ -56,8 +57,9 @@ class PromisesController {
   }
 
   searchUser(regex, count) {
+    const _this = PromisesController.currentInstance;
     return new Promise((resolve, reject) => {
-      UserModel.find({}, userFormatted)
+      UserModel.find({}, _this.userData)
         .skip(count)
         .limit(5)
         .or([{
@@ -84,6 +86,4 @@ class PromisesController {
 
 // Exports
 
-const controller = new PromisesController();
-
-module.exports = controller;
+module.exports = PromisesController.currentInstance;

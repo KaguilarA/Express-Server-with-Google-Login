@@ -7,7 +7,6 @@ const autoIncrement = require('mongoose-auto-increment');
 autoIncrement.initialize(mongoose.connection);
 
 // Const data
-const roles = [1, 2, 3];
 const Schema = mongoose.Schema;
 
 // User Schema
@@ -55,20 +54,14 @@ const userSchema = new Schema({
     required: [true, `La contraseña es requerida`]
   },
   role: {
-    type: Number,
-    required: true,
-    enum: roles
+    type: Schema.Types.ObjectId,
+    ref: `Role`
   },
   googleTokenLogin: {
     type: Boolean,
     required: true,
     default: false
   }
-});
-
-userSchema.virtual('fullName').get(function() {
-  const fullName = this.firstName + ' ' + this.firstSurname;
-  return fullName;
 });
 
 userSchema.methods.setPassword = function() {

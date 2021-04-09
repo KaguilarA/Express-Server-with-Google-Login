@@ -2,46 +2,17 @@
 const msj = require('./../../shared/msj.shared');
 const promisesManager = require('./promise.manager');
 
-// Functions
-
-function getAllPromises(regex, count) {
-  const allPromises = [
-    promisesManager.searchHospital(regex, count),
-    promisesManager.searchDoctor(regex, count),
-    promisesManager.searchUser(regex, count)
-  ];
-
-  return allPromises;
-}
-
-function getPromiseById(id, regex, count) {
-  let promise;
-
-  switch (id) {
-    case `doctor`:
-      promise = promisesManager.searchDoctor(regex, count);
-      break;
-
-    case `hospital`:
-      promise = promisesManager.searchHospital(regex, count);
-      break;
-
-    default:
-      promise = promisesManager.searchUser(regex, count);
-      break;
-  }
-  return promise;
-}
-
 // Controller
 
 class SearchController {
+  static currentInstance = new SearchController();
 
   getAll(req, res) {
+    const _this = SearchController.currentInstance;
     const searchParm = req.params.search;
     const fromOf = parseInt(req.query.fromOf) || 0;
     const regex = new RegExp(searchParm, 'i');
-    const allPromises = getAllPromises(regex, fromOf);
+    const allPromises = _this.getAllPromises(regex, fromOf);
 
     Promise.all(allPromises).then(([users, hospitals, doctors]) => {
       const data = {
@@ -68,11 +39,12 @@ class SearchController {
   }
 
   getByTable(req, res) {
+    const _this = SearchController.currentInstance;
     const searchParm = req.params.search;
     const fromOf = parseInt(req.query.fromOf) || 0;
     const regex = new RegExp(searchParm, 'i');
     const table = req.params.table.toLowerCase();
-    const promise = getPromiseById(table, regex, fromOf);
+    const promise = _this.getPromiseById(table, regex, fromOf);
 
     if (!promise) {
       const err = {
@@ -89,10 +61,37 @@ class SearchController {
       return msj.sendData(res, data);
     });
   }
+
+  getPromiseById(id, regex, count) {
+    let promise;
+
+    switch (id) {
+      case `doctor`:
+        promise = promisesManager.searchDoctor(regex, count);
+        break;
+
+      case `hospital`:
+        promise = promisesManager.searchHospital(regex, count);
+        break;
+
+      default:
+        promise = promisesManager.searchUser(regex, count);
+        break;
+    }
+    return promise;
+  }
+
+  getAllPromises(regex, count) {
+    const allPromises = [
+      promisesManager.searchHospital(regex, count),
+      promisesManager.searchDoctor(regex, count),
+      promisesManager.searchUser(regex, count)
+    ];
+
+    return allPromises;
+  }
 }
 
 // Export
 
-const controller = new SearchController();
-
-module.exports = controller;
+module.exports = SearchController.currentInstance;

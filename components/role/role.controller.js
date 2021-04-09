@@ -1,21 +1,19 @@
-const BaseController = require('./../base/base.controller');
 const msj = require('./../../shared/msj.shared');
-const model = require('./user.model');
 
-class UserController extends BaseController {
-  static currentInstance = new UserController();
+const model = require('./role.model');
+
+class RoleController {
+  static currentInstance = new RoleController();
+  name = 'Role';
 
   getAll(req, res) {
-    const _this = UserController.currentInstance;
     const fromOf = parseInt(req.query.fromOf) || 0;
 
-    model.find({}, _this.userData)
+    model.find({})
       .skip(fromOf)
       .limit(5)
-      .populate(`role`)
       .exec(
-        (err, users) => {
-          console.log('users: ', users);
+        (err, matchs) => {
           if (err) {
             return msj.sendDataBaseError(res, err);
           }
@@ -24,8 +22,8 @@ class UserController extends BaseController {
               return msj.sendDataBaseError(res, err);
             }
             const data = {
-              usersLength: count,
-              users
+              count,
+              matchs
             }
             msj.sendData(res, data);
           });
@@ -34,56 +32,54 @@ class UserController extends BaseController {
 
   getById(req, res) {
     const id = req.params.id;
-    console.log(id);
 
     model.findById({_id: id})
-      .exec((err, user) => {
+      .exec((err, role) => {
         if (err) {
-          return msj.badRequestData(res, `Search user error`, err);
+          return msj.badRequestData(res, `Search role error`, err);
         }
-        if (!user) {
-          msj.notFountData(res, `User id`, id);
+        if (!role) {
+          msj.notFountData(res, `Role id`, id);
         }
-        msj.sendData(res, {user, uid: req.uid});
+        msj.sendData(res, {user: role, uid: req.uid});
       });
   }
 
   register(req, res) {
     const body = req.body;
     const newUser = new model(body);
-    newUser.setPassword();
-    newUser.save((err, createdUser) => {
+    newUser.save((err, createdRole) => {
       if (err) {
-        return msj.badRequestData(res, `Error en el registro de usuario`, err);
+        return msj.badRequestData(res, `Error en el registro de rol`, err);
       }
 
-      msj.createdData(res, createdUser);
+      msj.createdData(res, createdRole);
     });
   }
 
-  updateById(req, res) {
+  update(req, res) {
     const id = req.params.id;
     const body = req.body;
     
-    model.findById(id)
-      .exec((err, user) => {
+    model.findById({_id: id})
+      .exec((err, match) => {
         if (err) {
           return msj.badRequestData(res, `Search user error`, err);
         }
-        if (!user) {
+        if (!match) {
           return msj.notFountData(res, `User id`, id);
         }
-        user.updateData(body);
-        user.save((err, updatedUser) => {
+        match.updateData(body);
+        match.save((err, updated) => {
           if (err) {
             return msj.badRequestData(res, `Update user error`, err);
           }
-          return msj.sendData(res, updatedUser);
+          return msj.sendData(res, updated);
         });
       });
   }
 
-  deleteById(req, res) {
+  delete(req, res) {
     const id = req.params.id;
     model.findByIdAndRemove(id, (err, deletedUser) => {
       if (err) {
@@ -97,6 +93,4 @@ class UserController extends BaseController {
   }
 }
 
-// Export
-
-module.exports = UserController.currentInstance;
+module.exports = RoleController.currentInstance;

@@ -1,20 +1,15 @@
-// Requires
+const BaseController = require('./../base/base.controller');
 const exceptionManager = require('./../../shared/msj.shared');
-
-// Model
 const HospitalModel = require('./hospital.model');
 
-// Consts
-const userFilterData = `firstName secondName firstSurname secondSurname email`;
-
-// Class
-
-class HospitalController {
+class HospitalController extends BaseController {
+  static currentInstance = new HospitalController();
 
   getAll(req, res) {
+    const _this = HospitalController.currentInstance;
     const fromOf = parseInt(req.query.fromOf) || 0;
-    HospitalModel.find({})
-      .populate(`userCreatorId`, userFilterData)
+    HospitalModel.find({}, _this.hospitalData)
+      .populate(`userCreatorId`, _this.userData)
       .skip(fromOf)
       .limit(5)
       .exec((err, hospitals) => {
@@ -35,9 +30,10 @@ class HospitalController {
   }
 
   getById(req, res) {
+    const _this = HospitalController.currentInstance;
     const id = req.params.id;
-    HospitalModel.findById(id)
-      .populate(`userCreatorId`, userFilterData)
+    HospitalModel.findById(id, _this.hospitalData)
+      .populate(`userCreatorId`, _this.userData)
       .exec((err, hospital) => {
         if (err) {
           return exceptionManager.badRequestData(res, `Search hospital error`, err);
@@ -82,7 +78,7 @@ class HospitalController {
           if (err) {
             return exceptionManager.badRequestData(res, `Update hospital error`, err);
           }
-          exceptionManager.sendData(res, updatedHospital);
+          return exceptionManager.sendData(res, updatedHospital);
         });
       });
   }
@@ -99,11 +95,6 @@ class HospitalController {
       return exceptionManager.sendData(res, deletedHospital);
     });
   }
-
 }
 
-// Export
-
-const controller = new HospitalController();
-
-module.exports = controller;
+module.exports = HospitalController.currentInstance;
