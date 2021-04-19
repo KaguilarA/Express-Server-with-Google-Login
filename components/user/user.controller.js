@@ -77,7 +77,12 @@ class UserController extends BaseController {
           if (err) {
             return msj.badRequestData(res, `Update user error`, err);
           }
-          return msj.sendData(res, updatedUser);
+          match.populate(`role`, (err, updated) => {
+            if (err) {
+              return msj.badRequestData(res, `Update user error`, err);
+            }
+            return msj.sendData(res, updated);
+          });
         });
       });
   }

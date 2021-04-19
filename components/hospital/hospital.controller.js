@@ -26,7 +26,7 @@ class HospitalController extends BaseController {
           }
           return exceptionManager.sendData(res, data);
         });
-    });
+      });
   }
 
   getById(req, res) {
@@ -58,9 +58,12 @@ class HospitalController extends BaseController {
   }
 
   updateById(req, res) {
+    const _this = HospitalController.currentInstance;
     const id = req.params.id;
     const body = req.body;
-    model.findById({ _id: id})
+    model.findById({
+        _id: id
+      })
       .exec((err, match) => {
         if (err) {
           return exceptionManager.badRequestData(res, `Search hospital error`, err);
@@ -73,7 +76,12 @@ class HospitalController extends BaseController {
           if (err) {
             return exceptionManager.badRequestData(res, `Update hospital error`, err);
           }
-          return exceptionManager.sendData(res, updatedHospital);
+          match.populate(`userCreatorId`, _this.userData, (err, updated) => {
+            if (err) {
+              return exceptionManager.badRequestData(res, `Update hospital error`, err);
+            }
+            return exceptionManager.sendData(res, updated);
+          });
         });
       });
   }

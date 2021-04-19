@@ -80,14 +80,12 @@ class DoctorController extends BaseController {
           }
 
           match.populate(`hospitalId`, _this.hospitalData)
-            .populate('', (err, updatedDoctor) => {
+            .populate(`userCreatorId`, _this.userData, (err, updated) => {
               if (err) {
                 return exceptionManager.badRequestData(res, `Update doctor error`, err);
               }
-              return exceptionManager.sendData(res, updatedDoctor);
+              return exceptionManager.sendData(res, updated);
             });
-
-          
         });
       });
   }
