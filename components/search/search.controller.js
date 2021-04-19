@@ -14,7 +14,7 @@ class SearchController {
     const regex = new RegExp(searchParm, 'i');
     const allPromises = _this.getAllPromises(regex, fromOf);
 
-    Promise.all(allPromises).then(([users, hospitals, doctors]) => {
+    Promise.all(allPromises).then(([hospitals, doctors, users]) => {
       const data = {
         result: { 
           users: {

@@ -30,7 +30,7 @@ router.put(
 
 router.delete(
   `/:id`,
-  auth.validateToken,
+  [auth.validateToken, auth.validateAdminRole],
   hospitalController.delete
 );
 

@@ -15,6 +15,6 @@ router.post(`/`, controller.register);
 
 router.put(`/:id`, auth.validateToken, controller.updateById);
 
-router.delete(`/:id`, auth.validateToken, controller.deleteById);
+router.delete(`/:id`, [auth.validateToken, auth.validateAdminRole], controller.deleteById);
 
 module.exports = router;

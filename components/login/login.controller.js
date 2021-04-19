@@ -2,6 +2,7 @@ const BaseController = require('./../base/base.controller');
 const googleVerify = require('./../../helpers/google.helper');
 const exceptionManager = require('./../../shared/msj.shared');
 const auth = require('./../../helpers/auth.helper');
+const {getMenu} =require('./../../helpers/sidebar.helper')
 const UserModel = require('../user/user.model');
 
 class LoginController extends BaseController {
@@ -35,12 +36,21 @@ class LoginController extends BaseController {
         }
 
         auth.generateToken(userMatch._id).then(token => {
-          userMatch.password = ``;
-          const data = {
-            token,
-            user: userMatch
-          }
-          return exceptionManager.sendData(res, data);
+          userMatch.populate(`role`).populate(``, (err, updated) => {
+            updated.password = ``;
+            const data = {
+              token,
+              match: {
+                user: updated,
+                menu: getMenu(updated.role)
+              }
+            }
+            if (err) {
+              return exceptionManager.sendDataBaseError(res, err);
+            }
+            return exceptionManager.sendData(res, data);
+          });
+          
         }).catch(err => {
           console.log(err);
         });
@@ -75,12 +85,20 @@ class LoginController extends BaseController {
                 return exceptionManager.badRequestData(res, _this.name, err);
               }
               auth.generateToken(updatedUser._id).then(token => {
-                updatedUser.password = "";
-                const data = {
-                  token,
-                  user: updatedUser
-                }
-                return exceptionManager.sendData(res, data);
+                updatedUser.populate(`role`).populate(``, (err, updated) => {
+                  updated.password = ``;
+                  const data = {
+                    token,
+                    match: {
+                      user: updated,
+                      menu: getMenu(updated.role)
+                    }
+                  }
+                  if (err) {
+                    return exceptionManager.sendDataBaseError(res, err);
+                  }
+                  return exceptionManager.sendData(res, data);
+                });
               });
             });
           });
@@ -103,11 +121,20 @@ class LoginController extends BaseController {
           return exceptionManager.badRequestData(res, `User not registered`, _this.credentialsError);
         }
         auth.generateToken(uid).then((token) => {
-          const data = {
-            token,
-            user: userMatch
-          }
-          return exceptionManager.sendData(res, data);
+          userMatch.populate(`role`).populate(``, (err, updated) => {
+            updated.password = ``;
+            const data = {
+              token,
+              match: {
+                user: updated,
+                menu: getMenu(updated.role)
+              }
+            }
+            if (err) {
+              return exceptionManager.sendDataBaseError(res, err);
+            }
+            return exceptionManager.sendData(res, data);
+          });
         });
       });
   }

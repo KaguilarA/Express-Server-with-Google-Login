@@ -61,6 +61,7 @@ class PromisesController {
     return new Promise((resolve, reject) => {
       UserModel.find({}, _this.userData)
         .skip(count)
+        .populate(`role`)
         .limit(5)
         .or([{
           firstName: regex

@@ -35,7 +35,8 @@ class UserController extends BaseController {
     const id = req.params.id;
     console.log(id);
 
-    model.findById({_id: id})
+    model.findById({ _id: id })
+      .populate(`role`)
       .exec((err, user) => {
         if (err) {
           return msj.badRequestData(res, `Search user error`, err);
@@ -77,7 +78,7 @@ class UserController extends BaseController {
           if (err) {
             return msj.badRequestData(res, `Update user error`, err);
           }
-          match.populate(`role`, (err, updated) => {
+          match.populate(`role`).populate(``, (err, updated) => {
             if (err) {
               return msj.badRequestData(res, `Update user error`, err);
             }
