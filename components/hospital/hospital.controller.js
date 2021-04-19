@@ -1,6 +1,6 @@
 const BaseController = require('./../base/base.controller');
 const exceptionManager = require('./../../shared/msj.shared');
-const HospitalModel = require('./hospital.model');
+const model = require('./hospital.model');
 
 class HospitalController extends BaseController {
   static currentInstance = new HospitalController();
@@ -8,7 +8,7 @@ class HospitalController extends BaseController {
   getAll(req, res) {
     const _this = HospitalController.currentInstance;
     const fromOf = parseInt(req.query.fromOf) || 0;
-    HospitalModel.find({}, _this.hospitalData)
+    model.find({}, _this.hospitalData)
       .populate(`userCreatorId`, _this.userData)
       .skip(fromOf)
       .limit(5)
@@ -16,12 +16,12 @@ class HospitalController extends BaseController {
         if (err) {
           return exceptionManager.sendDataBaseError(res, err);
         }
-        HospitalModel.countDocuments({}, (err, count) => {
+        model.countDocuments({}, (err, count) => {
           if (err) {
             return exceptionManager.sendDataBaseError(res, err);
           }
           const data = {
-            hospitalsLength: hospitals.length,
+            hospitalsLength: count,
             hospitals
           }
           return exceptionManager.sendData(res, data);
@@ -32,7 +32,7 @@ class HospitalController extends BaseController {
   getById(req, res) {
     const _this = HospitalController.currentInstance;
     const id = req.params.id;
-    HospitalModel.findById(id, _this.hospitalData)
+    model.findById(id, _this.hospitalData)
       .populate(`userCreatorId`, _this.userData)
       .exec((err, hospital) => {
         if (err) {
@@ -48,7 +48,7 @@ class HospitalController extends BaseController {
   register(req, res) {
     const body = req.body;
     body.userCreatorId = req.uid.uid;
-    const newHospital = new HospitalModel(body);
+    const newHospital = new model(body);
     newHospital.save((err, createdHospital) => {
       if (err) {
         return exceptionManager.badRequestData(res, `Register hospital error`, err);
@@ -60,21 +60,16 @@ class HospitalController extends BaseController {
   updateById(req, res) {
     const id = req.params.id;
     const body = req.body;
-    HospitalModel.findById(id)
-      .exec((err, hospital) => {
+    model.findById({ _id: id})
+      .exec((err, match) => {
         if (err) {
           return exceptionManager.badRequestData(res, `Search hospital error`, err);
         }
-        if (!hospital) {
+        if (!match) {
           return exceptionManager.notFountData(res, `Hospital id`, id);
         }
-        for (const key in body) {
-          if (body[key] !== undefined) {
-            const currentData = body[key];
-            hospital[key] = currentData;
-          }
-        }
-        return hospital.save((err, updatedHospital) => {
+        match.updateData(body);
+        match.save((err, updatedHospital) => {
           if (err) {
             return exceptionManager.badRequestData(res, `Update hospital error`, err);
           }
@@ -85,7 +80,7 @@ class HospitalController extends BaseController {
 
   delete(req, res) {
     const id = req.params.id;
-    HospitalModel.findByIdAndRemove(id, (err, deletedHospital) => {
+    model.findByIdAndRemove(id, (err, deletedHospital) => {
       if (err) {
         return exceptionManager.badRequestData(res, `Search hospital by id error`, err);
       }

@@ -34,15 +34,28 @@ const hospitalSchema = new Schema({
   },
   latitude: {
     type: Number,
-    required: false
+    required: false,
+    default: 0
   },
   longitude: {
     type: Number,
-    required: false
+    required: false,
+    default: 0
   }
 });
 
 hospitalSchema.plugin(autoIncrement.plugin, { model: 'Hospital', field: 'id' });
+
+hospitalSchema.methods.updateData = function (overwriteData) {
+  for (const att in overwriteData) {
+    if (Object.hasOwnProperty.call(overwriteData, att)) {
+      const newData = overwriteData[att];
+      if (this[att] !== undefined) {
+        this[att] = newData;
+      }
+    }
+  }
+}
 
 // Hospital Model
 const HospitalModel = mongoose.model(`Hospital`, hospitalSchema, `Hospitals`);

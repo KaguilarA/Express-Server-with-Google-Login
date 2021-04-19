@@ -60,6 +60,17 @@ doctorSchema.static.validateIdType = (id) => {
 
 doctorSchema.plugin(autoIncrement.plugin, { model: 'Doctor', field: 'id' });
 
+doctorSchema.methods.updateData = function (overwriteData) {
+  for (const att in overwriteData) {
+    if (Object.hasOwnProperty.call(overwriteData, att)) {
+      const newData = overwriteData[att];
+      if (this[att] !== undefined) {
+        this[att] = newData;
+      }
+    }
+  }
+}
+
 // Doctor Model
 const DoctorModel = mongoose.model(`Doctor`, doctorSchema, `Doctors`);
 

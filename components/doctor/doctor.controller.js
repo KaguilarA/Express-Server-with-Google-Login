@@ -62,27 +62,32 @@ class DoctorController extends BaseController {
   }
 
   updateById(req, res) {
+    const _this = DoctorController.currentInstance;
     const id = req.params.id;
     const body = req.body;
-    model.findById(id)
-      .exec((err, doctor) => {
+    model.findById({ _id: id })
+      .exec((err, match) => {
         if (err) {
           return exceptionManager.badRequestData(res, `Search doctor error`, err);
         }
-        if (!doctor) {
+        if (!match) {
           return exceptionManager.notFountData(res, `Doctor id`, id);
         }
-        for (const key in body) {
-          if (body[key] !== undefined) {
-            const currentData = body[key];
-            doctor[key] = currentData;
-          }
-        }
-        doctor.save((err, updatedDoctor) => {
+        match.updateData(body);
+        match.save((err, done) => {
           if (err) {
             return exceptionManager.badRequestData(res, `Update doctor error`, err);
           }
-          return exceptionManager.sendData(res, updatedDoctor);
+
+          match.populate(`hospitalId`, _this.hospitalData)
+            .populate('', (err, updatedDoctor) => {
+              if (err) {
+                return exceptionManager.badRequestData(res, `Update doctor error`, err);
+              }
+              return exceptionManager.sendData(res, updatedDoctor);
+            });
+
+          
         });
       });
   }

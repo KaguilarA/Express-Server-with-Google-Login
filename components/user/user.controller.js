@@ -15,7 +15,6 @@ class UserController extends BaseController {
       .populate(`role`)
       .exec(
         (err, users) => {
-          console.log('users: ', users);
           if (err) {
             return msj.sendDataBaseError(res, err);
           }
@@ -64,17 +63,17 @@ class UserController extends BaseController {
   updateById(req, res) {
     const id = req.params.id;
     const body = req.body;
-    
-    model.findById(id)
-      .exec((err, user) => {
+    model.findById({ _id: id })
+      .exec((err, match) => {
+        
         if (err) {
           return msj.badRequestData(res, `Search user error`, err);
         }
-        if (!user) {
+        if (!match) {
           return msj.notFountData(res, `User id`, id);
         }
-        user.updateData(body);
-        user.save((err, updatedUser) => {
+        match.updateData(body);
+        match.save((err, updatedUser) => {
           if (err) {
             return msj.badRequestData(res, `Update user error`, err);
           }

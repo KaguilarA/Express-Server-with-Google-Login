@@ -14,11 +14,11 @@ class UploadImageController {
     let currentModel;
 
     switch (dataType) {
-      case 'hospitals':
+      case 'hospital':
         currentModel = HospitalModel;
         break;
 
-      case 'doctors':
+      case 'doctor':
         currentModel = DoctorModel;
         break;
 
