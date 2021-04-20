@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use(express.static(`./test`))
+app.use(express.static(`./public`))
 app.use('/', components);
 
 app.listen(process.env.PORT, () => {
